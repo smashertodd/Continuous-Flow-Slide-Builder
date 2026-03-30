@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slide Builder - PPT Optimized</title>
+<style>
+  :root {
+    --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --color-text-primary: #111827;
+    --color-text-secondary: #4B5563;
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #F9FAFB;
+    --color-border: #D1D5DB;
+    --color-primary: #2563EB;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body { 
+    background: #f3f4f6; font-family: var(--font-sans); color: var(--color-text-primary);
+    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  /* --- Top Bar & Toolbar --- */
+  .top-bar { 
+    display: flex; align-items: center; justify-content: space-between; 
+    padding: 16px 24px; background: #fff; border-bottom: 1px solid var(--color-border); flex-shrink: 0;
+  }
+  h2 { font-size: 18px; font-weight: 600; color: #111827; }
+  .hint { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+  
+  .btn { 
+    padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; 
+    font-size: 13px; font-weight: 500; transition: all 0.15s; display: flex; align-items: center; gap: 6px; 
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  .btn-primary { background: var(--color-primary); color: #fff; }
+  .btn-success { background: #059669 !important; color: #fff !important; }
+  .btn-secondary { background: #fff; color: var(--color-text-primary); border: 1px solid var(--color-border); }
+
+  .toolbar { 
+    display: flex; align-items: center; gap: 12px; padding: 12px 24px; 
+    background: var(--color-bg-secondary); border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap; flex-shrink: 0;
+  }
+  
+  .theme-selector {
+    display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+  }
+  .theme-selector select {
+    padding: 6px 12px; border-radius: 6px; border: 1px solid var(--color-border);
+    font-size: 13px; font-weight: 500; cursor: pointer; background: #fff; outline: none;
+  }
+  .theme-selector select:focus { border-color: var(--color-primary); }
+
+  /* --- Split View Main Area --- */
+  .main-split { display: flex; flex: 1; overflow: hidden; }
+
+  /* --- Builder Pane (Left) --- */
+  .builder-pane {
+    width: 45%; max-width: 600px; padding: 24px; overflow-y: auto;
+    border-right: 1px solid var(--color-border); background: #fff;
+  }
+
+  .edit-card {
+    border: 1px solid var(--color-border); border-radius: 8px; margin-bottom: 16px;
+    background: var(--color-bg-secondary); transition: border-color 0.2s; position: relative;
+  }
+  .edit-card:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
+
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between; padding: 8px 12px;
+    border-bottom: 1px solid var(--color-border); background: rgba(0,0,0,0.02);
+  }
+  
+  .card-color-indicator {
+    display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--color-text-secondary);
+  }
+  .swatch-mini { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.2); }
+
+  .reorder-btns { display: flex; gap: 4px; }
+  .sm-btn { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 12px; padding: 4px; }
+  .sm-btn:hover { color: #111; }
+  .del-btn { color: #DC2626; font-size: 11px; font-weight: 500; cursor: pointer; border: none; background: none; margin-left: auto;}
+
+  .card-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+  .input-group label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 4px; display: block; }
+  
+  .rich-input {
+    background: #fff; border: 1px solid var(--color-border); border-radius: 6px;
+    padding: 10px; font-size: 14px; line-height: 1.5; outline: none; min-height: 44px;
+  }
+  .rich-input:focus { border-color: var(--color-primary); }
+  .rich-input:empty:before { content: attr(data-placeholder); color: #9CA3AF; pointer-events: none; }
+
+  /* --- Preview Pane (Right) --- */
+  .preview-pane {
+    flex: 1; padding: 40px; overflow-y: auto; background: var(--color-bg-tertiary);
+    display: flex; justify-content: center; align-items: flex-start;
+  }
+
+  .slide-canvas {
+    width: 100%; max-width: 960px; background: #fff; padding: 40px;
+    border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  }
+
+  .add-btn-wrap { margin-top: 10px; text-align: center; }
+  .btn-dashed { width: 100%; justify-content: center; background: transparent; border: 2px dashed var(--color-border); color: var(--color-text-secondary); }
+  .btn-dashed:hover { border-color: var(--color-primary); color: var(--color-primary); background: rgba(37,99,235,0.05); }
+
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <h2>Slide Builder</h2>
+    <p class="hint">Layout is now 100% PPT compliant. Select a palette and colors will automatically cycle.</p>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <button class="btn btn-primary" id="btn-copy" onclick="copyForPPT(this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" style="margin-right:4px;"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+      Copy to PowerPoint
+    </button>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="theme-selector">
+    <label>🎨 Auto-Color Palette:</label>
+    <select id="sel-theme" onchange="changeTheme(this.value)">
+      <option value="monochrome">Black Outlines (Default)</option>
+      <option value="vibrant">Vibrant Flow (High Contrast)</option>
+      <option value="pastels">Soft Pastels (Accessible)</option>
+      <option value="ocean">Oceanic Blues</option>
+      <option value="earth">Warm Earth Tones</option>
+    </select>
+  </div>
+  
+  <div style="width: 1px; height: 24px; background: var(--color-border); margin: 0 8px;"></div>
+  
+  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="document.execCommand('bold', false, null); syncPreview();"><b>B</b></button>
+  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="document.execCommand('italic', false, null); syncPreview();"><i>I</i></button>
+  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="document.execCommand('underline', false, null); syncPreview();"><u>U</u></button>
+</div>
+
+<div class="main-split">
+  <div class="builder-pane">
+    <div id="cards-container"></div>
+    <div class="add-btn-wrap">
+      <button class="btn btn-dashed" onclick="addCard()">+ Add Section</button>
+    </div>
+  </div>
+
+  <div class="preview-pane">
+    <div class="slide-canvas" id="preview-container">
+      <!-- Table goes here -->
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Accessible & UX Palettes ─────────────────────────────────────────
+// Designed for High Contrast text visibility. Dark bold borders, light backgrounds.
+const PALETTES = {
+  "monochrome": [
+    { border: '#000000', bg: 'transparent' }
+  ],
+  "vibrant": [
+    { border: '#D9534F', bg: '#FDECE7' }, // Deep Red/Orange
+    { border: '#0275D8', bg: '#E5F1FB' }, // Strong Blue
+    { border: '#5CB85C', bg: '#E8F5E9' }, // Green
+    { border: '#F0AD4E', bg: '#FCF5E3' }, // Amber
+    { border: '#673AB7', bg: '#EFEAF6' }  // Purple
+  ],
+  "pastels": [
+    { border: '#B4656F', bg: '#F8EDEB' }, // Rose
+    { border: '#4E6E81', bg: '#EBF2F6' }, // Slate Blue
+    { border: '#86A397', bg: '#EFF5F2' }, // Sage
+    { border: '#D0A055', bg: '#FBF5EB' }, // Sand
+    { border: '#796465', bg: '#F2EFEF' }  // Taupe
+  ],
+  "ocean": [
+    { border: '#034C65', bg: '#E5F1F5' },
+    { border: '#1789AC', bg: '#E8F5F8' },
+    { border: '#4BABC6', bg: '#EDF7F9' },
+    { border: '#20A4B8', bg: '#E0F7FA' }
+  ],
+  "earth": [
+    { border: '#8D6E63', bg: '#EFEBE9' },
+    { border: '#F4511E', bg: '#FBE9E7' },
+    { border: '#FB8C00', bg: '#FFF3E0' },
+    { border: '#7CB342', bg: '#F1F8E9' }
+  ]
+};
+
+let currentTheme = 'monochrome';
+let cardData = [];
+
+// ── Initialization ───────────────────────────────────────────────────
+// Start with 4 default black boxes
+window.onload = () => {
+  for (let i = 0; i < 4; i++) {
+    cardData.push({ id: generateId(), label: '', text: '' });
+  }
+  renderBuilder();
+  syncPreview();
+};
+
+function generateId() {
+  return 'id-' + Math.random().toString(36).substr(2, 9);
+}
+
+// ── Theme Logic ──────────────────────────────────────────────────────
+function changeTheme(themeName) {
+  currentTheme = themeName;
+  renderBuilder();
+  syncPreview();
+}
+
+function getColorForIndex(index) {
+  const palette = PALETTES[currentTheme];
+  return palette[index % palette.length];
+}
+
+// ── Builder Management ───────────────────────────────────────────────
+function renderBuilder() {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+
+  cardData.forEach((card, index) => {
+    const color = getColorForIndex(index);
+    const div = document.createElement('div');
+    div.className = 'edit-card';
+    
+    // Check if bg is transparent for UI indicator
+    const bgDisplay = color.bg === 'transparent' ? '#fff' : color.bg;
+
+    div.innerHTML = `
+      <div class="card-header">
+        <div class="reorder-btns">
+          <button class="sm-btn" onclick="moveCard(${index}, -1)">▲</button>
+          <button class="sm-btn" onclick="moveCard(${index}, 1)">▼</button>
+        </div>
+        <div class="card-color-indicator">
+          Color Assigned: <div class="swatch-mini" style="background:${bgDisplay}; border-color:${color.border}"></div>
+        </div>
+        <button class="del-btn" onclick="deleteCard(${index})">✖ Remove</button>
+      </div>
+      <div class="card-body">
+        <div class="input-group">
+          <label>Left Label Box</label>
+          <div class="rich-input input-label" contenteditable="true" data-placeholder="Empty box..." 
+               oninput="updateData(${index}, 'label', this.innerHTML)">${card.label}</div>
+        </div>
+        <div class="input-group">
+          <label>Section Text</label>
+          <div class="rich-input input-text" contenteditable="true" data-placeholder="Type text here..." 
+               oninput="updateData(${index}, 'text', this.innerHTML)">${card.text}</div>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function updateData(index, field, html) {
+  cardData[index][field] = html;
+  syncPreview();
+}
+
+function addCard() {
+  cardData.push({ id: generateId(), label: '', text: '' });
+  renderBuilder();
+  syncPreview();
+}
+
+function deleteCard(index) {
+  cardData.splice(index, 1);
+  renderBuilder();
+  syncPreview();
+}
+
+function moveCard(index, dir) {
+  if (dir === -1 && index > 0) {
+    const temp = cardData[index];
+    cardData[index] = cardData[index - 1];
+    cardData[index - 1] = temp;
+  } else if (dir === 1 && index < cardData.length - 1) {
+    const temp = cardData[index];
+    cardData[index] = cardData[index + 1];
+    cardData[index + 1] = temp;
+  }
+  renderBuilder();
+  syncPreview();
+}
+
+// ── Preview & Export Generator ───────────────────────────────────────
+// This generates a classic, strictly-formatted HTML Table. 
+// PowerPoint parses this flawlessly, preserving all alignments and colors.
+function generateExportHTML() {
+  let rowsHTML = '';
+
+  cardData.forEach((card, index) => {
+    const color = getColorForIndex(index);
+    const lbl = card.label.trim() || '<span style="color:transparent;">_</span>';
+    const txt = card.text.trim() || '<span style="color:transparent;">_</span>';
+
+    // To make PPT render gaps safely, we use physical padding on the bottom of the cells
+    rowsHTML += `
+      <tr>
+        <td width="160" valign="top" style="padding-bottom: 16px;">
+          <div style="border: 2px solid ${color.border}; background-color: ${color.bg}; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; color: #111827;">
+            ${lbl}
+          </div>
+        </td>
+        
+        <td width="20" style="padding-bottom: 16px;"></td>
+        
+        <td valign="top" style="padding-bottom: 16px;">
+          <div style="background-color: ${color.bg}; border-left: 4px solid ${color.border}; padding: 12px 16px; border-radius: 4px; color: #111827; line-height: 1.5;">
+            ${txt}
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  return `
+    <table width="100%" style="font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 14pt; border-collapse: collapse; margin: 0; padding: 0;">
+      ${rowsHTML}
+    </table>
+  `;
+}
+
+function syncPreview() {
+  const html = generateExportHTML();
+  document.getElementById('preview-container').innerHTML = html;
+}
+
+// ── Clipboard Export for PowerPoint ──────────────────────────────────
+async function copyForPPT(btn) {
+  const tableHTML = generateExportHTML();
+  
+  // Wrap in basic HTML structure for the clipboard
+  const fullHTML = `
+    <!DOCTYPE html>
+    <html>
+      <head><meta charset="utf-8"></head>
+      <body>${tableHTML}</body>
+    </html>
+  `;
+  
+  let success = false;
+  
+  if (navigator.clipboard && window.ClipboardItem) {
+    try {
+      const blobHtml = new Blob([fullHTML], { type: 'text/html' });
+      const blobText = new Blob(['Table copied.'], { type: 'text/plain' });
+      const item = new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText });
+      await navigator.clipboard.write([item]);
+      success = true;
+    } catch (err) {
+      console.warn("Clipboard API failed", err);
+    }
+  }
+  
+  if (!success) {
+    const div = document.createElement('div');
+    div.innerHTML = fullHTML;
+    div.style.position = 'absolute'; div.style.left = '-9999px';
+    document.body.appendChild(div);
+    const range = document.createRange(); range.selectNodeContents(div);
+    const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    try { success = document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(div); sel.removeAllRanges();
+  }
+  
+  if (success) {
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '✅ Copied! Paste (Ctrl+V) into PPT';
+    btn.classList.add('btn-success');
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.classList.remove('btn-success');
+    }, 4000);
+  } else {
+    alert('Copy failed. Your browser might be blocking clipboard access.');
+  }
+}
+
+</script>
+</body>
+</html>
