@@ -3,87 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slide Builder - PPT Optimized</title>
+<title>Slide Builder - PRO (Canva & PPT)</title>
+<!-- Swapped to html-to-image for perfectly accurate rendering of inline text flow -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+
 <style>
   :root {
     --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
     --color-text-primary: #111827;
     --color-text-secondary: #4B5563;
+    --color-text-tertiary: #9CA3AF;
     --color-bg-primary: #ffffff;
     --color-bg-secondary: #F9FAFB;
+    --color-bg-tertiary: #E5E7EB;
     --color-border: #D1D5DB;
     --color-primary: #2563EB;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  
-  body { 
+  body {
     background: #f3f4f6; font-family: var(--font-sans); color: var(--color-text-primary);
     height: 100vh; display: flex; flex-direction: column; overflow: hidden;
   }
-
+  
   /* --- Top Bar & Toolbar --- */
-  .top-bar { 
-    display: flex; align-items: center; justify-content: space-between; 
+  .top-bar {
+    display: flex; align-items: center; justify-content: space-between;
     padding: 16px 24px; background: #fff; border-bottom: 1px solid var(--color-border); flex-shrink: 0;
+    flex-wrap: wrap; gap: 12px;
   }
   h2 { font-size: 18px; font-weight: 600; color: #111827; }
-  .hint { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
-  
-  .btn { 
-    padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; 
-    font-size: 13px; font-weight: 500; transition: all 0.15s; display: flex; align-items: center; gap: 6px; 
+  .hint { font-size: 13px; color: #059669; font-weight: 500; margin-top: 4px; }
+  .btn {
+    padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; transition: all 0.15s; display: flex; align-items: center; gap: 6px;
   }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .btn:active { transform: translateY(0); }
+  
   .btn-primary { background: var(--color-primary); color: #fff; }
-  .btn-success { background: #059669 !important; color: #fff !important; }
+  .btn-success { background: #059669 !important; color: #fff !important; background-image: none !important;}
   .btn-secondary { background: #fff; color: var(--color-text-primary); border: 1px solid var(--color-border); }
-
-  .toolbar { 
-    display: flex; align-items: center; gap: 12px; padding: 12px 24px; 
+  .btn-secondary:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+  
+  /* Canva Gradient Button */
+  .btn-canva { background: linear-gradient(90deg, #00C4CC, #7D2AE8); color: #fff; border: none; }
+  .action-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+  
+  .toolbar {
+    display: flex; align-items: center; gap: 12px; padding: 12px 24px;
     background: var(--color-bg-secondary); border-bottom: 1px solid var(--color-border);
     flex-wrap: wrap; flex-shrink: 0;
   }
-  
-  .theme-selector {
-    display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
-  }
+  .theme-selector { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
   .theme-selector select {
     padding: 6px 12px; border-radius: 6px; border: 1px solid var(--color-border);
     font-size: 13px; font-weight: 500; cursor: pointer; background: #fff; outline: none;
   }
-  .theme-selector select:focus { border-color: var(--color-primary); }
-
+  
   /* --- Split View Main Area --- */
   .main-split { display: flex; flex: 1; overflow: hidden; }
-
+  
   /* --- Builder Pane (Left) --- */
   .builder-pane {
-    width: 45%; max-width: 600px; padding: 24px; overflow-y: auto;
+    width: 45%; max-width: 650px; padding: 24px; overflow-y: auto;
     border-right: 1px solid var(--color-border); background: #fff;
   }
-
   .edit-card {
     border: 1px solid var(--color-border); border-radius: 8px; margin-bottom: 16px;
     background: var(--color-bg-secondary); transition: border-color 0.2s; position: relative;
   }
   .edit-card:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
-
   .card-header {
     display: flex; align-items: center; justify-content: space-between; padding: 8px 12px;
-    border-bottom: 1px solid var(--color-border); background: rgba(0,0,0,0.02);
+    border-bottom: 1px solid var(--color-border); background: rgba(0,0,0,0.02); flex-wrap: wrap; gap: 8px;
   }
   
+  /* Color Pickers */
   .card-color-indicator {
     display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--color-text-secondary);
+    background: #fff; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--color-border);
   }
-  .swatch-mini { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.2); }
-
+  .card-color-indicator input[type="color"] { width: 22px; height: 22px; padding: 0; border: none; cursor: pointer; background: none; }
+  .clear-bg-btn {
+    background: #fef2f2; border: 1px solid #fca5a5; color: #ef4444; border-radius: 4px;
+    width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; font-weight: bold; line-height: 1; margin-left: -2px;
+  }
+  .clear-bg-btn:hover { background: #fee2e2; }
+  
   .reorder-btns { display: flex; gap: 4px; }
   .sm-btn { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 12px; padding: 4px; }
-  .sm-btn:hover { color: #111; }
   .del-btn { color: #DC2626; font-size: 11px; font-weight: 500; cursor: pointer; border: none; background: none; margin-left: auto;}
-
+  .del-btn:hover { text-decoration: underline; }
   .card-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
   .input-group label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 4px; display: block; }
   
@@ -92,54 +103,83 @@
     padding: 10px; font-size: 14px; line-height: 1.5; outline: none; min-height: 44px;
   }
   .rich-input:focus { border-color: var(--color-primary); }
-  .rich-input:empty:before { content: attr(data-placeholder); color: #9CA3AF; pointer-events: none; }
-
+  
+  /* CSS trick to show placeholder text when contenteditable is empty */
+  .rich-input:empty::before {
+    content: attr(data-placeholder);
+    color: var(--color-text-tertiary);
+    pointer-events: none;
+    display: block;
+  }
+  
   /* --- Preview Pane (Right) --- */
   .preview-pane {
     flex: 1; padding: 40px; overflow-y: auto; background: var(--color-bg-tertiary);
     display: flex; justify-content: center; align-items: flex-start;
   }
-
   .slide-canvas {
     width: 100%; max-width: 960px; background: #fff; padding: 40px;
     border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
   }
-
-  .add-btn-wrap { margin-top: 10px; text-align: center; }
+  
+  /* Live Layout */
+  .live-container { display: flex; width: 100%; gap: 24px; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; }
+  .live-labels-col { width: 170px; position: relative; flex-shrink: 0; }
+  .live-text-col { flex: 1; position: relative; font-size: 14pt; line-height: 1.9; color: #111827; }
+  
+  .live-label-box { position: absolute; left: 0; width: 100%; transition: top 0.2s; }
+  .live-label-inner {
+    border: 2px solid #000; background-color: transparent; padding: 8px 10px; 
+    border-radius: 6px; text-align: center; font-weight: bold; font-size: 13px;
+    line-height: 1.3;
+  }
+  
+  .flow-span { 
+    border-radius: 4px; box-decoration-break: clone; -webkit-box-decoration-break: clone; 
+    display: inline; transition: background 0.3s; 
+  }
+  
+  .add-btn-wrap { margin-top: 10px; text-align: center; padding-bottom: 40px; }
   .btn-dashed { width: 100%; justify-content: center; background: transparent; border: 2px dashed var(--color-border); color: var(--color-text-secondary); }
   .btn-dashed:hover { border-color: var(--color-primary); color: var(--color-primary); background: rgba(37,99,235,0.05); }
-
 </style>
 </head>
 <body>
-
 <div class="top-bar">
   <div>
-    <h2>Slide Builder</h2>
-    <p class="hint">Layout is now 100% PPT compliant. Select a palette and colors will automatically cycle.</p>
+    <h2>Continuous Flow <span style="color:#2563EB;">(Canvas Image Generator)</span></h2>
+    <p class="hint">Solves formatting issues perfectly. Pastes exactly what you see.</p>
   </div>
-  <div style="display: flex; gap: 10px;">
-    <button class="btn btn-primary" id="btn-copy" onclick="copyForPPT(this)">
-      <svg width="16" height="16" viewBox="0 0 24 24" style="margin-right:4px;"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-      Copy to PowerPoint
+  <div class="action-buttons">
+    <button class="btn btn-secondary" onclick="downloadImage(this)">
+      ⬇️ Download PNG
+    </button>
+    <button class="btn btn-primary" onclick="copyImageToClipboard(this, 'PPT')">
+      <svg width="16" height="16" viewBox="0 0 24 24" style="margin-right:2px;"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+      Copy for PPT
+    </button>
+    <button class="btn btn-canva" onclick="copyImageToClipboard(this, 'Canva')">
+      <svg width="16" height="16" viewBox="0 0 24 24" style="margin-right:4px;"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+      Copy for Canva
     </button>
   </div>
 </div>
 
 <div class="toolbar">
   <div class="theme-selector">
-    <label>🎨 Auto-Color Palette:</label>
-    <select id="sel-theme" onchange="changeTheme(this.value)">
-      <option value="monochrome">Black Outlines (Default)</option>
+    <label>🎨 Auto-Theme:</label>
+    <select id="sel-theme" onchange="applyTheme(this.value)">
       <option value="vibrant">Vibrant Flow (High Contrast)</option>
+      <option value="monochrome">Black Outlines</option>
       <option value="pastels">Soft Pastels (Accessible)</option>
+      <option value="corporate">Corporate (Professional)</option>
+      <option value="hiviz">Hi-Viz (Safety / Alert)</option>
+      <option value="neon">Neon (Cyberpunk)</option>
       <option value="ocean">Oceanic Blues</option>
       <option value="earth">Warm Earth Tones</option>
     </select>
   </div>
-  
   <div style="width: 1px; height: 24px; background: var(--color-border); margin: 0 8px;"></div>
-  
   <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="document.execCommand('bold', false, null); syncPreview();"><b>B</b></button>
   <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="document.execCommand('italic', false, null); syncPreview();"><i>I</i></button>
   <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="document.execCommand('underline', false, null); syncPreview();"><u>U</u></button>
@@ -152,91 +192,95 @@
       <button class="btn btn-dashed" onclick="addCard()">+ Add Section</button>
     </div>
   </div>
-
   <div class="preview-pane">
     <div class="slide-canvas" id="preview-container">
-      <!-- Table goes here -->
+      <!-- Live Preview Rendered Here -->
     </div>
   </div>
 </div>
 
 <script>
-// ── Accessible & UX Palettes ─────────────────────────────────────────
-// Designed for High Contrast text visibility. Dark bold borders, light backgrounds.
 const PALETTES = {
-  "monochrome": [
-    { border: '#000000', bg: 'transparent' }
-  ],
   "vibrant": [
-    { border: '#D9534F', bg: '#FDECE7' }, // Deep Red/Orange
-    { border: '#0275D8', bg: '#E5F1FB' }, // Strong Blue
-    { border: '#5CB85C', bg: '#E8F5E9' }, // Green
-    { border: '#F0AD4E', bg: '#FCF5E3' }, // Amber
-    { border: '#673AB7', bg: '#EFEAF6' }  // Purple
+    { border: '#D9534F', bg: '#FDECE7' }, { border: '#0275D8', bg: '#E5F1FB' },
+    { border: '#5CB85C', bg: '#E8F5E9' }, { border: '#F0AD4E', bg: '#FCF5E3' }, { border: '#673AB7', bg: '#EFEAF6' }
   ],
+  "monochrome": [ { border: '#000000', bg: 'transparent' } ],
   "pastels": [
-    { border: '#B4656F', bg: '#F8EDEB' }, // Rose
-    { border: '#4E6E81', bg: '#EBF2F6' }, // Slate Blue
-    { border: '#86A397', bg: '#EFF5F2' }, // Sage
-    { border: '#D0A055', bg: '#FBF5EB' }, // Sand
-    { border: '#796465', bg: '#F2EFEF' }  // Taupe
+    { border: '#B4656F', bg: '#F8EDEB' }, { border: '#4E6E81', bg: '#EBF2F6' },
+    { border: '#86A397', bg: '#EFF5F2' }, { border: '#D0A055', bg: '#FBF5EB' }, { border: '#796465', bg: '#F2EFEF' }
+  ],
+  "corporate": [
+    { border: '#1B365D', bg: '#F0F4F8' }, { border: '#4A5568', bg: '#F7FAFC' },
+    { border: '#744253', bg: '#FAF5F7' }, { border: '#276749', bg: '#F0FFF4' }
+  ],
+  "hiviz": [
+    { border: '#FFEA00', bg: '#FFFFE0' }, { border: '#FF3D00', bg: '#FFEBEE' },
+    { border: '#00E676', bg: '#E8F5E9' }, { border: '#D500F9', bg: '#F3E5F5' }
+  ],
+  "neon": [
+    { border: '#FF00FF', bg: '#FFF0FF' }, { border: '#00FFFF', bg: '#E0FFFF' },
+    { border: '#39FF14', bg: '#F0FFF0' }, { border: '#7D26CD', bg: '#F5F0FF' }
   ],
   "ocean": [
-    { border: '#034C65', bg: '#E5F1F5' },
-    { border: '#1789AC', bg: '#E8F5F8' },
-    { border: '#4BABC6', bg: '#EDF7F9' },
-    { border: '#20A4B8', bg: '#E0F7FA' }
+    { border: '#034C65', bg: '#E5F1F5' }, { border: '#1789AC', bg: '#E8F5F8' },
+    { border: '#4BABC6', bg: '#EDF7F9' }, { border: '#20A4B8', bg: '#E0F7FA' }
   ],
   "earth": [
-    { border: '#8D6E63', bg: '#EFEBE9' },
-    { border: '#F4511E', bg: '#FBE9E7' },
-    { border: '#FB8C00', bg: '#FFF3E0' },
-    { border: '#7CB342', bg: '#F1F8E9' }
+    { border: '#8D6E63', bg: '#EFEBE9' }, { border: '#F4511E', bg: '#FBE9E7' },
+    { border: '#FB8C00', bg: '#FFF3E0' }, { border: '#7CB342', bg: '#F1F8E9' }
   ]
 };
 
-let currentTheme = 'monochrome';
+// ── BLANK TEMPLATES (CLEAN SLATE) ──
+const DEFAULT_TEMPLATES = [
+  { label: '', ph: 'Type your first section here...' },
+  { label: '', ph: 'Type your second section here...' },
+  { label: '', ph: 'Type your third section here...' }
+];
+
+let currentTheme = 'vibrant';
 let cardData = [];
 
-// ── Initialization ───────────────────────────────────────────────────
-// Start with 4 default black boxes
-window.onload = () => {
-  for (let i = 0; i < 4; i++) {
-    cardData.push({ id: generateId(), label: '', text: '' });
-  }
+window.addEventListener('resize', syncPreview);
+
+function generateId() { return 'id-' + Math.random().toString(36).substr(2, 9); }
+
+function initApp() {
+  DEFAULT_TEMPLATES.forEach((template, i) => {
+    const color = PALETTES[currentTheme][i % PALETTES[currentTheme].length];
+    cardData.push({
+      id: generateId(),
+      label: template.label,
+      text: '',
+      placeholder: template.ph,
+      border: color.border,
+      bg: color.bg
+    });
+  });
   renderBuilder();
   syncPreview();
-};
-
-function generateId() {
-  return 'id-' + Math.random().toString(36).substr(2, 9);
 }
 
-// ── Theme Logic ──────────────────────────────────────────────────────
-function changeTheme(themeName) {
+function applyTheme(themeName) {
   currentTheme = themeName;
+  const palette = PALETTES[currentTheme];
+  cardData.forEach((card, index) => {
+    card.border = palette[index % palette.length].border;
+    card.bg = palette[index % palette.length].bg;
+  });
   renderBuilder();
   syncPreview();
 }
 
-function getColorForIndex(index) {
-  const palette = PALETTES[currentTheme];
-  return palette[index % palette.length];
-}
-
-// ── Builder Management ───────────────────────────────────────────────
 function renderBuilder() {
   const container = document.getElementById('cards-container');
   container.innerHTML = '';
-
   cardData.forEach((card, index) => {
-    const color = getColorForIndex(index);
     const div = document.createElement('div');
     div.className = 'edit-card';
+    const bgPickerValue = (card.bg === 'transparent' || !card.bg) ? '#ffffff' : card.bg;
     
-    // Check if bg is transparent for UI indicator
-    const bgDisplay = color.bg === 'transparent' ? '#fff' : color.bg;
-
     div.innerHTML = `
       <div class="card-header">
         <div class="reorder-btns">
@@ -244,20 +288,22 @@ function renderBuilder() {
           <button class="sm-btn" onclick="moveCard(${index}, 1)">▼</button>
         </div>
         <div class="card-color-indicator">
-          Color Assigned: <div class="swatch-mini" style="background:${bgDisplay}; border-color:${color.border}"></div>
+          <label>Border:</label>
+          <input type="color" value="${card.border}" onchange="updateCardColor(${index}, 'border', this.value)">
+          <label style="margin-left: 8px;">Fill:</label>
+          <input type="color" value="${bgPickerValue}" onchange="updateCardColor(${index}, 'bg', this.value)">
+          <button class="clear-bg-btn" onclick="updateCardColor(${index}, 'bg', 'transparent')" title="Clear Fill">∅</button>
         </div>
         <button class="del-btn" onclick="deleteCard(${index})">✖ Remove</button>
       </div>
       <div class="card-body">
         <div class="input-group">
           <label>Left Label Box</label>
-          <div class="rich-input input-label" contenteditable="true" data-placeholder="Empty box..." 
-               oninput="updateData(${index}, 'label', this.innerHTML)">${card.label}</div>
+          <div class="rich-input input-label" contenteditable="true" data-placeholder="Label..." oninput="updateData(${index}, 'label', this.innerHTML)">${card.label}</div>
         </div>
         <div class="input-group">
-          <label>Section Text</label>
-          <div class="rich-input input-text" contenteditable="true" data-placeholder="Type text here..." 
-               oninput="updateData(${index}, 'text', this.innerHTML)">${card.text}</div>
+          <label>Continuous Flow Section</label>
+          <div class="rich-input input-text" contenteditable="true" data-placeholder="${card.placeholder}" oninput="updateData(${index}, 'text', this.innerHTML)">${card.text}</div>
         </div>
       </div>
     `;
@@ -265,131 +311,180 @@ function renderBuilder() {
   });
 }
 
-function updateData(index, field, html) {
-  cardData[index][field] = html;
-  syncPreview();
-}
+function updateData(index, field, html) { cardData[index][field] = html; syncPreview(); }
+function updateCardColor(index, field, value) { cardData[index][field] = value; renderBuilder(); syncPreview(); }
 
 function addCard() {
-  cardData.push({ id: generateId(), label: '', text: '' });
-  renderBuilder();
-  syncPreview();
+  const nextColor = PALETTES[currentTheme][cardData.length % PALETTES[currentTheme].length];
+  cardData.push({ 
+    id: generateId(), 
+    label: '', 
+    text: '', 
+    placeholder: 'Enter new section text...',
+    border: nextColor.border, 
+    bg: nextColor.bg 
+  });
+  renderBuilder(); syncPreview();
 }
 
-function deleteCard(index) {
-  cardData.splice(index, 1);
-  renderBuilder();
-  syncPreview();
-}
-
+function deleteCard(index) { cardData.splice(index, 1); renderBuilder(); syncPreview(); }
 function moveCard(index, dir) {
-  if (dir === -1 && index > 0) {
-    const temp = cardData[index];
-    cardData[index] = cardData[index - 1];
-    cardData[index - 1] = temp;
-  } else if (dir === 1 && index < cardData.length - 1) {
-    const temp = cardData[index];
-    cardData[index] = cardData[index + 1];
-    cardData[index + 1] = temp;
-  }
-  renderBuilder();
-  syncPreview();
+  if (dir === -1 && index > 0) [cardData[index], cardData[index - 1]] = [cardData[index - 1], cardData[index]];
+  else if (dir === 1 && index < cardData.length - 1) [cardData[index], cardData[index + 1]] = [cardData[index + 1], cardData[index]];
+  renderBuilder(); syncPreview();
 }
 
-// ── Preview & Export Generator ───────────────────────────────────────
-// This generates a classic, strictly-formatted HTML Table. 
-// PowerPoint parses this flawlessly, preserving all alignments and colors.
-function generateExportHTML() {
-  let rowsHTML = '';
-
+// ── Live Render & Anti-Collision Engine ──
+function syncPreview() {
+  const container = document.getElementById('preview-container');
+  
+  let textSpans = '';
   cardData.forEach((card, index) => {
-    const color = getColorForIndex(index);
-    const lbl = card.label.trim() || '<span style="color:transparent;">_</span>';
-    const txt = card.text.trim() || '<span style="color:transparent;">_</span>';
-
-    // To make PPT render gaps safely, we use physical padding on the bottom of the cells
-    rowsHTML += `
-      <tr>
-        <td width="160" valign="top" style="padding-bottom: 16px;">
-          <div style="border: 2px solid ${color.border}; background-color: ${color.bg}; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; color: #111827;">
-            ${lbl}
-          </div>
-        </td>
-        
-        <td width="20" style="padding-bottom: 16px;"></td>
-        
-        <td valign="top" style="padding-bottom: 16px;">
-          <div style="background-color: ${color.bg}; border-left: 4px solid ${color.border}; padding: 12px 16px; border-radius: 4px; color: #111827; line-height: 1.5;">
-            ${txt}
-          </div>
-        </td>
-      </tr>
-    `;
+    let txt = card.text.trim();
+    let isEmpty = false;
+    
+    // If empty, show a greyed-out placeholder in the live preview so it isn't invisible
+    if (!txt || txt === '<br>') {
+      txt = `<span style="color: #9CA3AF;">${card.placeholder}</span>`;
+      isEmpty = true;
+    }
+    
+    if (!isEmpty && !txt.endsWith('; ') && !txt.endsWith('&nbsp;')) txt += '&nbsp; '; 
+    const padding = card.bg === 'transparent' ? '0' : '2px 6px';
+    textSpans += `<span id="span-${index}" class="flow-span" style="background-color: ${card.bg}; padding: ${padding};">${txt}</span>`;
   });
 
-  return `
-    <table width="100%" style="font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 14pt; border-collapse: collapse; margin: 0; padding: 0;">
-      ${rowsHTML}
-    </table>
-  `;
-}
+  let labelDivs = '';
+  cardData.forEach((card, index) => {
+    let lbl = card.label.trim() || '&nbsp;';
+    labelDivs += `
+      <div id="label-${index}" class="live-label-box" style="top: 0;">
+        <div class="live-label-inner" style="border-color: ${card.border || '#000'}; background-color: ${card.bg || 'transparent'};">
+          ${lbl}
+        </div>
+      </div>`;
+  });
 
-function syncPreview() {
-  const html = generateExportHTML();
-  document.getElementById('preview-container').innerHTML = html;
-}
-
-// ── Clipboard Export for PowerPoint ──────────────────────────────────
-async function copyForPPT(btn) {
-  const tableHTML = generateExportHTML();
-  
-  // Wrap in basic HTML structure for the clipboard
-  const fullHTML = `
-    <!DOCTYPE html>
-    <html>
-      <head><meta charset="utf-8"></head>
-      <body>${tableHTML}</body>
-    </html>
+  container.innerHTML = `
+    <div class="live-container">
+      <div class="live-labels-col" id="col-labels">${labelDivs}</div>
+      <div class="live-text-col" id="col-text">${textSpans}</div>
+    </div>
   `;
-  
-  let success = false;
-  
-  if (navigator.clipboard && window.ClipboardItem) {
-    try {
-      const blobHtml = new Blob([fullHTML], { type: 'text/html' });
-      const blobText = new Blob(['Table copied.'], { type: 'text/plain' });
-      const item = new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText });
-      await navigator.clipboard.write([item]);
-      success = true;
-    } catch (err) {
-      console.warn("Clipboard API failed", err);
+
+  requestAnimationFrame(() => {
+    let previousBottom = 0;
+    for (let i = 0; i < cardData.length; i++) {
+      const span = document.getElementById(`span-${i}`);
+      const label = document.getElementById(`label-${i}`);
+      if (!span || !label) continue;
+      
+      let desiredTop = span.offsetTop;
+      if (desiredTop < previousBottom) desiredTop = previousBottom; 
+      
+      label.style.top = desiredTop + 'px';
+      previousBottom = desiredTop + label.offsetHeight + 10;
     }
-  }
+  });
+}
+
+// ── NEW EXPORT LOGIC (USING HTML-TO-IMAGE FOR FLAWLESS ACCURACY) ──
+async function copyImageToClipboard(btn, targetApp) {
+  const originalText = btn.innerHTML;
+  const originalWidth = btn.offsetWidth; 
   
-  if (!success) {
-    const div = document.createElement('div');
-    div.innerHTML = fullHTML;
-    div.style.position = 'absolute'; div.style.left = '-9999px';
-    document.body.appendChild(div);
-    const range = document.createRange(); range.selectNodeContents(div);
-    const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
-    try { success = document.execCommand('copy'); } catch(e) {}
-    document.body.removeChild(div); sel.removeAllRanges();
-  }
+  btn.style.width = originalWidth + 'px';
+  btn.style.justifyContent = 'center';
+  btn.innerHTML = '⏳ Working...';
   
-  if (success) {
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '✅ Copied! Paste (Ctrl+V) into PPT';
-    btn.classList.add('btn-success');
-    setTimeout(() => {
-      btn.innerHTML = originalText;
-      btn.classList.remove('btn-success');
-    }, 4000);
-  } else {
-    alert('Copy failed. Your browser might be blocking clipboard access.');
+  try {
+    const targetElement = document.getElementById('preview-container');
+    const originalShadow = targetElement.style.boxShadow;
+    targetElement.style.boxShadow = 'none';
+
+    // Generate accurate native screenshot
+    const blob = await htmlToImage.toBlob(targetElement, { 
+      backgroundColor: '#ffffff', 
+      pixelRatio: 2,
+      style: { margin: '0' }
+    });
+    
+    targetElement.style.boxShadow = originalShadow;
+
+    if (!blob) throw new Error("Image blob failed to generate.");
+
+    try {
+      const item = new ClipboardItem({ 'image/png': blob });
+      await navigator.clipboard.write([item]);
+      
+      btn.innerHTML = `✅ Copied for ${targetApp}`;
+      btn.classList.add('btn-success');
+      
+      setTimeout(() => { 
+        btn.innerHTML = originalText; 
+        btn.classList.remove('btn-success'); 
+        btn.style.width = 'auto';
+      }, 3000);
+      
+    } catch (clipboardErr) {
+      console.warn("Clipboard failed (maybe browser permissions), downloading fallback...", clipboardErr);
+      triggerDownload(blob, btn, originalText);
+    }
+  } catch (error) {
+    console.error("Canvas generation failed:", error);
+    alert("Sorry, generating the image failed.");
+    btn.innerHTML = originalText;
+    btn.style.width = 'auto';
   }
 }
 
+async function downloadImage(btn) {
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ Generating...';
+  
+  try {
+    const targetElement = document.getElementById('preview-container');
+    const originalShadow = targetElement.style.boxShadow;
+    targetElement.style.boxShadow = 'none';
+
+    const dataUrl = await htmlToImage.toPng(targetElement, { 
+      backgroundColor: '#ffffff', 
+      pixelRatio: 2,
+      style: { margin: '0' }
+    });
+    
+    targetElement.style.boxShadow = originalShadow;
+
+    const link = document.createElement('a');
+    link.download = 'Slide-Continuous-Flow.png';
+    link.href = dataUrl;
+    link.click();
+    
+    btn.innerHTML = '✅ Downloaded';
+    btn.classList.add('btn-success');
+    setTimeout(() => { btn.innerHTML = originalText; btn.classList.remove('btn-success'); }, 3000);
+  } catch (error) {
+    console.error("Canvas generation failed:", error);
+    alert("Sorry, generating the image failed.");
+    btn.innerHTML = originalText;
+  }
+}
+
+function triggerDownload(blob, btn, originalText) {
+  const link = document.createElement('a');
+  link.download = 'Slide-Continuous-Flow.png';
+  link.href = URL.createObjectURL(blob);
+  link.click();
+  
+  if (btn) {
+    btn.innerHTML = '✅ Downloaded Instead';
+    btn.classList.add('btn-success');
+    setTimeout(() => { btn.innerHTML = originalText; btn.classList.remove('btn-success'); }, 3000);
+  }
+}
+
+// Fire initApp immediately 
+initApp();
 </script>
 </body>
 </html>
